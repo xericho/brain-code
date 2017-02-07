@@ -41,14 +41,15 @@ class medianObject:
 		lidar = lidarSensor() 		
 
 		# put values in a 2D array
-		storeValues = [[lidar.getValues()] for i in range(self.delay)]
+		storeValues = []
+		for i in range(self.delay):
+			storeValues.append(lidar.getValues())
 
 		for i in range(len(arr)):
 			temp = []
 			temp.append(arr[i])
 			for t in range(self.delay):
 				temp.append(storeValues[t][i])
-			print temp
 			arr[i] = np.median(temp)
 		print arr
 
@@ -58,12 +59,12 @@ class medianObject:
 		return self.arr		
 
 # TESTING
-
+"""
 arr = lidarSensor()
 #print arr.getValues()		# generates an array of random numbers
 x = rangeObject(arr.getValues(), 1, 50)
 x.rangeFilter()
-"""
+
 arr = [0,0,290,3,3,4,0]
 n = x.update(arr)
 print n
@@ -71,5 +72,6 @@ print x.lidar
 y = medianObject(arr)
 print y.lidar
 """
+arr = lidarSensor()
 y = medianObject(3)
-y.medianFilter(arr)
+y.medianFilter(arr.getValues())
