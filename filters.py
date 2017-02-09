@@ -1,77 +1,96 @@
 import numpy as np
 
-# simulates the lidar which generates an array for float values
+# simulates the lidar which generates an array of float values
 from lidarSensor import lidarSensor 	
 
+"""
+Class name:	rangeObject
+Purpose:	Crops all the values that are below range_min (or above range_max)
+		and replaces them with the range_min value (or range_max value)
+Description:	This class has one function (update) which scans once from the 
+		lidar sensor and applies a range filter
+"""
 class rangeObject:
 
-	def __init__(self, arr, min_range, max_range):
-		self.arr = arr
-		self.min_range = min_range
-		self.max_range = max_range
+	"""
+	Function name:	__init__
+	Purpose:	A constructor for rangeObject, initializes values
+	Description:	Stores the range_min and range_max values
+	Input:		range_min: the cutoff value for the minimum
+			range_max: the curoff value for the maximum
+	Output:		None
+	"""
+	def __init__(self, range_min, range_max):
+		self.range_min = range_min
+		self.range_max = range_max
 
-	def rangeFilter(self):
+	"""
+	Function name:	update
+	Purpose:	Gets data from the lidar and applies the range filter
+	Description:	Reads the lidar sensor data from a file.
+			It then loops through the list and replaces the outliers 
+			with either range_min or range_max
+	Input:		None
+	Output:		Returns the list of filtered float values
+	"""
+	def update(self):
+	
+		f = open('output.txt', 'r')
+		string = f.readline()
+		arr = string.strip().split()		# stores line from file to a list
+		for i in range(len(arr)):		# converts string to floats
+			arr[i] = float(arr[i])
 
-		outOfRange = 0;
-
-		for index in range(len(self.arr)):
+		for index in range(len(arr)):
 			# replace value if below min range
-			if self.arr[index] < self.min_range:
-				self.arr[index] = self.min_range
-				outOfRange += 1
+			if arr[index] < self.range_min:
+				arr[index] = self.range_min
 			# replace value if ablove max range
-			if self.arr[index] > self.max_range:
-				self.arr[index] = self.max_range
-				outOfRange += 1
-
-		print 'Number of errors found: '+str(outOfRange)
-
-	def update(self, arr):
-		self.arr = arr
-		self.rangeFilter()
-		return self.arr
+			elif arr[index] > self.range_max:
+				arr[index] = self.range_max
+		
+		f.close()		
+		return arr
 
 class medianObject:
 
 	def __init__(self, delay):
 		self.delay = delay
 
-	def medianFilter(self, arr):
-		# create object for getting values
-		lidar = lidarSensor() 		
-
+	def update(self):
+		
+		f = open('output.txt','r')
+		
 		# put values in a 2D array
 		storeValues = []
 		for i in range(self.delay):
-			storeValues.append(lidar.getValues())
+			string = next(f).strip().split()
+			for j in range(len(string)):
+				string[j] = float(string[j])
+			storeValues.append(string)
 
-		for i in range(len(arr)):
-			temp = []
-			temp.append(arr[i])
+		# finds the median
+		arr = []
+		for i in range(len(storeValues[0])):
+			current = []
 			for t in range(self.delay):
-				temp.append(storeValues[t][i])
-			arr[i] = np.median(temp)
-		print arr
+				current.append(storeValues[t][i])
+			arr.append(np.median(current))
 
-	def update(self, arr):
-		self.arr = arr
-		self.medianFilter()
-		return self.arr		
-
-# TESTING
+		return arr
+# Driver code for testing
 """
-arr = lidarSensor()
-#print arr.getValues()		# generates an array of random numbers
-x = rangeObject(arr.getValues(), 1, 50)
-x.rangeFilter()
+# For testing rangeObject
+lidar = lidarSensor()
+lidar.getValues()
+x = rangeObject(5,40)
+print x.update()
 
-arr = [0,0,290,3,3,4,0]
-n = x.update(arr)
-print n
-print x.lidar
-y = medianObject(arr)
-print y.lidar
+
 """
-arr = lidarSensor()
+# For testing medianObject
+lidar = lidarSensor()
+lidar.getValues()
 y = medianObject(3)
-y.medianFilter(arr.getValues())
+print y.update()
+
