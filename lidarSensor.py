@@ -14,8 +14,7 @@ class lidarSensor:
 	Purpose:		Generates data that simulates data coming from
 				a lidar sensor.
 	Description:		Using the random library, it will store random 
-				numbers that range from 0 to 60 in a file of 
-				length N
+				numbers that range from 0 to 60 in a file  
 	Input:			None
 	Output:			Writes the generated data in a file called output.txt
 	"""

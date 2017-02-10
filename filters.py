@@ -1,14 +1,12 @@
 import numpy as np
-
-# simulates the lidar which generates an array of float values
 from lidarSensor import lidarSensor 	
 
 """
 Class name:	rangeObject
 Purpose:	Crops all the values that are below range_min (or above range_max)
 		and replaces them with the range_min value (or range_max value)
-Description:	This class has one function (update) which scans once from the 
-		lidar sensor and applies a range filter
+Description:	This class has one function to be called (update) which scans once
+		from the lidar sensor and applies a range filter
 """
 class rangeObject:
 
@@ -27,7 +25,7 @@ class rangeObject:
 	"""
 	Function name:	update
 	Purpose:	Gets data from the lidar and applies the range filter
-	Description:	Reads the lidar sensor data from a file.
+	Description:	Reads the last line of the lidar sensor data from a file 
 			It then loops through the list and replaces the outliers 
 			with either range_min or range_max
 	Input:		None
@@ -36,8 +34,8 @@ class rangeObject:
 	def update(self):
 	
 		f = open('output.txt', 'r')
-		string = f.readline()
-		arr = string.strip().split()		# stores line from file to a list
+		string = f.readlines()
+		arr = string[-1].strip().split()	# stores last line from file to a list
 		for i in range(len(arr)):		# converts string to floats
 			arr[i] = float(arr[i])
 
@@ -52,45 +50,82 @@ class rangeObject:
 		f.close()		
 		return arr
 
+"""
+Class name:	medianObjects
+Purpose:	Finds the median of the current and previous D scans
+Description:	The number of previous scans D is a parameter that is
+		given when creating a new medianObject. It gets the
+		previous D scans and the current scan only and returns the
+		median of each measurement 
+"""
 class medianObject:
 
+	"""
+	Function name:	__init__
+	Purpose:	A constructor for medianObject, initializes delay
+	Description:	Stores the number of previous scans 
+	Input:		delay: the number of previous scans desired
+	Output:		None
+	"""
 	def __init__(self, delay):
-		self.delay = delay
+		self.delay = delay+1		# num of prev and current scans
 
+	"""
+	Function name:	update
+	Purpose:	Finds the median of the current and previous D scans
+	Description:	It reads the current and previous D scans from a file
+			and stores them in to a 2D list. It then loops each index
+			of each scan and finds the median of that index. 
+	Input:		None
+	Output:		Returns a list of the median from the scans
+	"""
 	def update(self):
 		
-		f = open('output.txt','r')
-		
-		# put values in a 2D array
-		storeValues = []
-		for i in range(self.delay):
-			string = next(f).strip().split()
+		storeValues = []		# variable for storing the scans
+		delay = self.delay
+		# reads each line starting from the bottom of test.txt 
+		for line in reversed(open("test.txt").readlines()):
+			# get out of loop after number of desired scans
+			if delay <= 0:
+				break
+
+			# take out the newline and spaces and store them in a list
+			string = line.strip().split()
+			
+			# convert each element of list to a float value
 			for j in range(len(string)):
 				string[j] = float(string[j])
+			
 			storeValues.append(string)
+			delay -= 1
 
 		# finds the median
-		arr = []
+		arr = []			# variable to store the median
 		for i in range(len(storeValues[0])):
-			current = []
+			current = []		# variable to store elements from each 'column'
+			numCol = len(storeValues)-1	# the number of total scans
 			for t in range(self.delay):
-				current.append(storeValues[t][i])
+				# get out of loop if no more scans
+				if numCol < 0:
+					break
+				current.append(storeValues[numCol][i])
+				numCol -= 1
+			# calculates the median for that 'column' and store in a list
 			arr.append(np.median(current))
-
+		
 		return arr
+
 # Driver code for testing
 """
-# For testing rangeObject
+# Create lidar object to generate data
 lidar = lidarSensor()
-lidar.getValues()
-x = rangeObject(5,40)
+lidar.getValues()	# outputs to output.txt
+
+# For testing rangeObject
+x = rangeObject(5i,40)	# set range_min = 5, range_max = 40
 print x.update()
 
-
-"""
 # For testing medianObject
-lidar = lidarSensor()
-lidar.getValues()
 y = medianObject(3)
 print y.update()
-
+"""
