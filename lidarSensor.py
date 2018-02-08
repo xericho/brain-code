@@ -1,36 +1,45 @@
-import random
+# -*- coding: utf-8 -*-
+
+
+from numpy.random import uniform
 
 """
 Class name: 	lidarSensor
-Purpose:	This class simulates a LIDAR that 'scans' and gives a reading 
-		from its sensor.
+Purpose:        This class simulates a lidar that 'scans' the environment
 Description:	It only has one function which generates random data and 
-		writes the output to a file
+                saves to 'scan' variable.
 """
-class lidarSensor:
+class lidarSensor():
+    """
+    Function name:  __init__
+    Purpose:        A constructor for lidarSensor, initializes class variables
+    Description:    Initializes 'scan' variable to store measurements 
+    Input:          None
+    Output:         None
+    """
+    def __init__(self):
+        self.scan = []
 
-	"""
-	Function name:		getValues
-	Purpose:		Generates data that simulates data coming from
-				a lidar sensor.
-	Description:		Using the random library, it will store random 
-				numbers that range from 0 to 60 in a file  
-	Input:			None
-	Output:			Writes the generated data in a file called output.txt
-	"""
-	def getValues(self):
+    """
+    Function name:  getValues
+    Purpose:		Generates data that simulates data coming from a lidar sensor.
+    Description:	Using the numpy, it will store random numbers that range from 0.03 to 50
+    Input:			N - number of samples in a 'scan'
+    Output:			None
+    """
+    def getValues(self, N=200):
 
-		# write to output.txt/ create file if nonexistant 
-		f = open('output.txt','w')
+        # generate data from an uniform distribution of values [0.03, 50]
+        self.scan = uniform(0.03,51,N)              # Does not include 51 
 
-		N = 5			# length of measurements N
-		numScan = 10		# 'scans' 10 times
 
-		while numScan > 0:
-			for i in range(N):
-				# generated data can range from 0.03 to 50
-        			f.write(str(random.uniform(0.03, 50))+' ')
-			f.write('\n')
-			numScan -= 1
-		f.close()
+
+
+
+
+
+
+
+
+
 
