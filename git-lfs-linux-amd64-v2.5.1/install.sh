@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-prefix="/usr/local"
+prefix="/kaggle/working"
 
 if [ "${PREFIX:-}" != "" ] ; then
   prefix=${PREFIX:-}
